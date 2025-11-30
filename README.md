@@ -1,87 +1,113 @@
-# Project-9: Implementing a Static Website Hosting Solution on Amazon S3
+# Project: Implementing a Static Website Hosting Solution on Amazon S3
 
-## Implementing a Cost-Effective Static Website Hosting Solution on Amazon S3
+## Objective
+Host a fully static website (HTML, CSS, JavaScript) on Amazon S3 with public access, eliminating the need for EC2 instances or web servers.
 
-In this project, we implement a highly cost-effective and scalable solution for hosting static websites using Amazon Simple Storage Service (S3). The goal is to demonstrate how S3 can be used to host static web content, such as HTML, CSS, JavaScript files, while leveraging S3's inherent benefits, such as high availability, durability, and cost optimization.
+## Why This Solution is Cost-Effective, Scalable & Highly Available
+- **Cost-Effective**: Pay-as-you-go pricing. Free tier includes 5 GB storage + 20,000 GET requests/month. No server maintenance costs.
+- **Scalable**: S3 automatically scales to handle any amount of traffic — from 1 visitor to millions.
+- **Highly Available**: 99.99% availability and 11 9s durability built-in. Multi-AZ by default.
 
-## Bucker Creation
+## Workflow
+1. Create S3 Bucket  
+2. Upload Files  
+3. Enable Static Website Hosting  
+4. Add Bucket Policy  
+5. Save → Access via Endpoint URL
 
-AWS → S3 → Create Bucket
+## Prerequisites
+- AWS Account
+- Static website files (e.g., Tooplate Moso Interior template)
 
-static-webpage-hosting-too-plate
+## Detailed Implementation Steps
 
-Block Public Access settings for this bucket
+### 1. Create S3 Bucket
+- AWS Console → S3 → Create bucket
+- Bucket name: Must be globally unique (e.g., `static-webpage-hosting-too-plate-2025`)
+- Region: Choose your preferred region
+- **Block all public access** → **Uncheck** (Must be disabled for public website)
+- **Bucket Versioning** → **Enable** (Allows easy rollback to previous versions)
+- Create bucket
 
-Unselect the Block all public access 
+### 2. Upload Files
+- Download the Tooplate template ZIP file locally
+- Extract it
 
-Bucket Versioning : Enable
+**Local Terminal Commands (on your machine):**
+```bash
+wget "https://www.tooplate.com/zip-templates/2133_moso_interior.zip"
+# Reason: Downloads the template directly from Tooplate
 
-[ Create bucket ]
-
-S3 → static-webpage-hosting-too-plate
-
-## Upload
-
-Download the previously we copied link website url. This files download to our computer
-
-wget <Link of the download button>
-
-ls
-
-mv 2133_moso_interior app.zip
-
-open .
+mv 2133_moso_interior.zip app.zip
+# Reason: Renames for easier handling
 
 unzip app.zip
+# Reason: Extracts all HTML, CSS, JS, images
+```
 
-Add Folder
+- In S3 Console → Open your bucket → Upload → Add folder → Upload all extracted files/folders
+- After upload, if files are inside a subfolder:
+  - Select all files/folders → Actions → Move
+  - Destination: `s3://your-bucket-name/` (root of the bucket)
+  - Move
+> Reason: Static website hosting requires index.html at the bucket root
 
-Upload the folder
+### 3. Enable Static Website Hosting
+- Bucket → Properties tab → Static website hosting → Edit
+- Select: **Enable**
+- Index document: `index.html`
+- (Optional) Error document: `error.html`
+- Save changes
 
-[ Upload ]
+→ Copy the **Bucket website endpoint** (e.g., `http://static-webpage-hosting-too-plate.s3-website.us-east-1.amazonaws.com`)
 
-All the folders move to root folder of the bucket
+### 4. Add Bucket Policy (Make Website Publicly Accessible)
+- Bucket → Permissions → Bucket policy → Edit
+- Paste this exact policy (replace `your-bucket-name`):
 
-Select all folders → Actions → Move 
-
-Destination : s3://static-webpage-hosting-too-plate/
-
-[ Move ]
-
-## Enabling static website hosting
-
-Amazon S3 → Buckets → static-webpage-hosting-too-plate → Properties → Static website hosting → Edit
-
-Enable
-
-Index Document : index.html
-
-[ Save changes ]
-
-Bucket website endpoint
-
-Copy the link and paste on a browser
-
-## Bucket policy and verify
-
-Amazon S3 → Buckets → static-webpage-hosting-too-plate → Permissions → Bucket policy → Edit
-
+```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::<Your Bucket Name>/*"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::static-webpage-hosting-too-plate/*"
+    }
+  ]
 }
+```
 
-Add this code to the policy section
+- Save changes
 
-[ Save Changes ]
+> Explanation of Policy:
+> - `"Principal": "*"` → Allows anyone (public access)
+> - `"Action": "s3:GetObject"` → Permits reading files (required for website to load)
+> - `"Resource": "arn:aws:s3:::bucket-name/*"` → Applies to all objects in the bucket
 
-Then refresh the website there loaded.
+### 5. Verify Website
+- Open the **Bucket website endpoint** in a browser
+- Website loads successfully → Project Complete!
 
-Finished …….!!!!!!!!!
+## Final Endpoint Example
+```
+http://static-webpage-hosting-too-plate.s3-website.us-east-1.amazonaws.com
+```
+
+## Optional Enhancements
+- Add CloudFront → HTTPS + faster global delivery
+- Use Route 53 → Custom domain (www.example.com)
+- Enable S3 access logging
+
+## Cleanup (Avoid Charges)
+1. Disable Static website hosting
+2. Remove bucket policy
+3. Delete all objects
+4. Delete bucket
+
+**Project Completed Successfully!**
+```
+
+This Markdown file is clean, professional, and ready to use in your DevOps project portfolio (Notion, GitHub, etc.).
+```
